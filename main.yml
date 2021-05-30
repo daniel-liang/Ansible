@@ -1,0 +1,290 @@
+- name: Azure Tenancy Build
+  hosts: localhost
+  connection: local
+# vars_files: ./group_vars/vms.yml
+
+  tasks:
+  - name: Create Resource Group
+    azure_rm_resourcegroup:
+      name: "{{ item.Name }}"
+      state: present
+      location: "{{ item.Location }}"
+      append_tags: yes
+      tags:
+        Organization: "Devops"
+    loop: "{{ rg_names_list }}"
+    tags: General, rgs
+
+  - name: Create virtual network
+    azure_rm_virtualnetwork:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.vNET_Name }}"
+      dns_servers: 
+        - "{{ item.DNS_Server_01 }}"
+        - "{{ item.DNS_Server_02 }}"
+      address_prefixes_cidr: "{{ item.vNET_Prefix }}"
+      append_tags: yes
+      tags:
+        Organization: "Devops"
+        Platform: "Network"
+    loop: "{{ vNET_names_list }}"
+    tags: General
+
+  - name: Add vNET subnet
+    azure_rm_subnet:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.subnet_Name }}"
+      address_prefix: "{{ item.subnet_Prefix }}"
+      virtual_network: "{{ item.vNET_Name }}"
+    loop: "{{ subnet_names_list }}"
+    tags: General,subnet
+
+  - name: Create availability set
+    azure_rm_availabilityset:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}"
+      platform_update_domain_count: 5
+      platform_fault_domain_count: 2
+      state: present
+      sku: "{{ item.SKU }}"
+      append_tags: yes
+      tags:
+        Organization: "Devops"
+        Platform: "Virtual Machine"
+    loop: "{{ avg_names_list }}"
+    tags: VMs
+
+  - name: Create virtual network inteface card
+    azure_rm_networkinterface:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}_vNIC01"
+      virtual_network: "{{ item.vNET_Name }}"
+      subnet_name: "{{ item.subnet_Name }}"
+      ip_configurations:
+        - name: ipconfig1
+          primary: True
+          private_ip_address: "{{ item.priv_ip }}"
+          private_ip_allocation_method: Static
+      enable_accelerated_networking: "{{ item.nic_acc }}"
+      create_with_security_group: no
+      append_tags: yes
+      tags:
+        Organization: "Devops"
+        Platform: "Virtual Machine"
+    loop: "{{ NIC_names_list }}"
+    tags: VMs
+
+  - name: Create VM
+    azure_rm_virtualmachine:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}"
+      vm_size: "{{ item.vm_size }}"
+      os_type: "{{ item.os_type }}"
+      availability_set: "{{ item.avg_set }}"
+      admin_username: "{{ item.Username }}"
+      admin_password: "{{ item.Password }}"
+      network_interfaces: "{{ item.Name }}_vNIC01"
+      image:
+        offer: "{{ item.image_offer }}"
+        publisher: "{{ item.image_publisher }}"
+        sku: "{{ item.image_sku }}"
+        version: latest
+      managed_disk_type: "{{ item.disk_type }}"
+      os_disk_name: "{{ item.Name }}_vDisk01"
+      started: false
+      state: present
+      append_tags: yes
+      tags:
+        Organization: "Devops"
+        Platform: "Virtual Machine"
+    loop: "{{ vm_names_list }}"
+    tags: VMs
+
+  - name: Create User Defined Routetables
+    azure_rm_routetable:
+      name: "{{ item.Name }}"
+      resource_group: "{{ item.resource_group }}"
+      disable_bgp_route_propagation: yes
+      append_tags: yes
+      tags:
+        Organization: "Devops"
+        Platform: "Network"
+    loop: "{{ udr_names_list }}"
+    tags: Network
+    
+  - name: Create User Defined Routes
+    azure_rm_route:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.routes_name }}"
+      route_table_name: "{{ item.Name }}"
+      address_prefix: "{{ item.address_prefix }}"
+      next_hop_type: virtual_appliance
+      next_hop_ip_address: "{{ item.next_hop }}"
+      state: present
+    loop: "{{ udr_names_list }}"
+    tags: Network
+
+  - name: Associate User Defined Routes with Subnets
+    azure_rm_subnet:
+      resource_group: "{{ item.resource_group }}"
+      virtual_network_name: "{{ item.vNET_Name }}"
+      name: "{{ item.subnet_Name }}"
+      route_table: "{{ item.route_table }}"
+    loop: "{{ udr_subnets_list }}"
+    tags: Network
+
+  - name: Create Public IP
+    azure_rm_publicipaddress:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}"
+      allocation_method: static
+      sku: "{{ item.sku }}"
+      tags:
+        Organization: "Devops"
+        Platform: "Azure Services"  
+    loop: "{{ pip_names_list }}"
+    tags: Security
+
+  - name: Create Network Security Group
+    azure_rm_securitygroup:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}"
+      purge_rules: no
+      rules:
+          - name: "{{ item.rule_name }}"
+            protocol: "{{ item.protocol }}"
+            source_address_prefix: "{{ item.source_address }}"
+            destination_address_prefix: "{{ item.destination_address }}"
+            destination_port_range: "{{ item.destination_port }}"
+            access: "{{ item.access }}"
+            priority: "{{ item.priority }}"
+            direction: "{{ item.direction }}"
+      tags:
+        Organization: "Devops"
+        Platform: "Security"
+    loop: "{{ nsg_names_list }}"
+    tags: Security,init
+
+  - name: Create Application Gateway
+    azure_rm_appgateway:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}"
+      gateway_ip_configurations: 
+        - subnet:
+            id: "{{ item.subnet_id }}"
+          name: "{{ item.Name }}_ip_config"
+      sku:
+        name: WAF_v2
+        tier: WAF_v2
+        capacity: 1
+      frontend_ports: 
+        - name: "{{ item.Name }}_fre_port_80"
+          port: 80
+        - name: "{{ item.Name }}_fre_port_8080"
+          port: 8080
+      frontend_ip_configurations:
+       - name: "{{ item.Name }}_fre_public"
+         public_ip_address: "{{ item.public_ip }}" 
+       - name: "{{ item.Name }}_fre_config"
+         subnet:
+           id: "{{ item.subnet_id }}"
+         private_ip_address: "{{ item.priv_ip }}"
+         private_ip_allocation_method: static
+      backend_http_settings_collection:
+        - name: "{{ item.collection_01 }}_bke_config"
+          port: 80
+          protocol: http
+          cookie_based_affinity: enabled
+        - name: "{{ item.collection_02 }}_bke_config"
+          port: 80
+          protocol: http
+          cookie_based_affinity: enabled
+      backend_address_pools:
+        - name: "{{ item.collection_01 }}_bke_pool"
+          backend_addresses:
+            - ip_address: "{{ item.backend_ip_01 }}"
+        - name: "{{ item.collection_02 }}_bke_pool"
+          backend_addresses:
+            - ip_address: "{{ item.backend_ip_02 }}"          
+      http_listeners:
+        - name: "{{ item.collection_01 }}_http_listener"
+          frontend_ip_configuration: "{{ item.Name }}_fre_config"
+          frontend_port: "{{ item.Name }}_fre_port_80"
+          host_name: "{{ item.header_01 }}"
+          protocol: http
+        - name: "{{ item.collection_02 }}_http_listener"
+          frontend_ip_configuration: "{{ item.Name }}_fre_config"
+          frontend_port: "{{ item.Name }}_fre_port_8080"
+          host_name: "{{ item.header_02 }}"
+          protocol: http
+      request_routing_rules:
+        - name: "{{ item.collection_01 }}_rule"
+          rule_type: Basic
+          backend_address_pool: "{{ item.collection_01 }}_bke_pool"
+          backend_http_settings: "{{ item.collection_01 }}_bke_config"
+          http_listener: "{{ item.collection_01 }}_http_listener"
+        - name: "{{ item.collection_02 }}_rule"
+          rule_type: Basic
+          backend_address_pool: "{{ item.collection_02 }}_bke_pool"
+          backend_http_settings: "{{ item.collection_02 }}_bke_config"
+          http_listener: "{{ item.collection_02 }}_http_listener"           
+      state: present
+      tags:
+        Organization: "Devops"
+        Platform: "Security"
+    loop: "{{ agw_names_list }}"
+    tags: Security
+
+
+  - name: Create NVA virtual network inteface card
+    azure_rm_networkinterface:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}_{{ item.location }}"
+      virtual_network: "{{ item.vNET_Name }}"
+      subnet_name: "{{ item.subnet_Name }}"
+      ip_configurations:
+        - name: ipconfig1
+          primary: True
+          private_ip_address: "{{ item.priv_ip }}"
+          private_ip_allocation_method: Static
+      enable_accelerated_networking: "{{ item.nic_acc }}"
+      enable_ip_forwarding: "{{ item.ip_forwarding }}"
+      create_with_security_group: no
+      tags:
+        Organization: "Devops"
+        Platform: "Security"
+    loop: "{{ nva_nic_names_list }}"
+    tags: Security,nva
+
+  - name: Create NVA
+    azure_rm_virtualmachine:
+      resource_group: "{{ item.resource_group }}"
+      name: "{{ item.Name }}"
+      vm_size: "{{ item.vm_size }}"
+      availability_set: "{{ item.avg_set }}"
+      admin_username: "{{ item.Username }}"
+      admin_password: "{{ item.Password }}"
+      network_interfaces: 
+        - "{{ item.Name }}_ext"
+        - "{{ item.Name }}_int"
+        - "{{ item.Name }}_ha"
+        - "{{ item.Name }}_mgmt"
+      image:
+        offer: "{{ item.image_offer }}"
+        publisher: "{{ item.image_publisher }}"
+        sku: "{{ item.image_sku }}"
+        version: latest
+      plan:
+        name: "{{ item.image_sku }}"
+        product: "{{ item.image_offer }}"
+        publisher: "{{ item.image_publisher }}"
+      accept_terms: yes
+      managed_disk_type: StandardSSD_LRS
+      os_disk_name: "{{ item.Name }}_vDisk01"
+      started: false
+      state: present
+      tags:
+        Organization: "Devops"
+        Platform: "Security"
+    loop: "{{ nva_names_list }}"
+    tags: Security,nva
