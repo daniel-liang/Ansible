@@ -1,0 +1,465 @@
+
+---
+#Resource Group
+rg_names_list:
+-
+    Name: DAN-DEV
+    Location: australiaeast
+
+#vNET
+vNET_names_list:
+-
+    vNET_Name: vnet-devops-auea-01
+    vNET_Prefix: 172.29.0.0/16
+    DNS_Server_01: 172.29.4.11
+    DNS_Server_02: 172.29.4.12
+    resource_group: DAN-DEV
+    Location: australiaeast
+
+
+#Subnets in each vNET
+subnet_names_list:
+-
+    subnet_Name: GatewaySubnet
+    subnet_Prefix: 172.29.0.0/27
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-dmzin-auea-01
+    subnet_Prefix: 172.29.1.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-dmzout-auea-01
+    subnet_Prefix: 172.29.2.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-ha-auea-01
+    subnet_Prefix: 172.29.0.96/27
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-appgw-auea-01
+    subnet_Prefix: 172.29.3.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-inf-auea-01
+    subnet_Prefix: 172.29.4.0/23
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-mgmt-auea-01
+    subnet_Prefix: 172.29.6.0/23
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-uatapp-auea-01
+    subnet_Prefix: 172.29.8.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-uatdb-auea-01
+    subnet_Prefix: 172.29.9.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-prodapp-auea-01
+    subnet_Prefix: 172.29.10.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+-
+    subnet_Name: snet-proddb-auea-01
+    subnet_Prefix: 172.29.11.0/24
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+
+
+#Availability Group for VMs
+avg_names_list:
+-
+    Name: avg-vm-cfmweb-prod
+    resource_group: DAN-DEV
+    SKU: Aligned
+-
+    Name: avg-vm-infadc-prod
+    resource_group: DAN-DEV
+    SKU: Aligned
+-
+    Name: avg-nva-infafwl-dr
+    resource_group: DAN-DEV
+    SKU: Aligned
+
+
+# Virtual Machine NICs
+NIC_names_list:
+-
+    Name: devsvcaad01
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-inf-auea-01
+    priv_ip: 172.29.4.11
+    nic_acc: no
+-
+    Name: devsvcaad02
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-inf-auea-01
+    priv_ip: 172.29.4.12
+    nic_acc: no
+-
+    Name: devsvcmgt01
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-mgmt-auea-01
+    priv_ip: 172.29.6.11
+    nic_acc: no
+-
+    Name: devsvccfmwebp01
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-prodapp-auea-01
+    priv_ip: 172.29.10.11
+    nic_acc: yes
+-
+    Name: devsvccfmsqlp01
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-proddb-auea-01
+    priv_ip: 172.29.11.11
+    nic_acc: yes
+-
+    Name: devsvccfmwebu01
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-uatapp-auea-01
+    priv_ip: 172.29.8.11
+    nic_acc: yes
+-
+    Name: devsvccfmsqlu01
+    resource_group: DAN-DEV
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-uatdb-auea-01
+    priv_ip: 172.29.9.11
+    nic_acc: yes
+
+
+# Virtual Machines
+vm_names_list:
+-
+    Name: devsvcaad01
+    resource_group: DAN-DEV
+    vm_size: Standard_D2_v2
+    os_type: Windows
+    disk_type: Standard_LRS
+    avg_set: avg-vm-infadc-prod
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: WindowsServer
+    image_publisher: MicrosoftWindowsServer
+    image_sku: 2016-Datacenter
+-
+    Name: devsvcaad02
+    resource_group: DAN-DEV
+    vm_size: Standard_D2_v2
+    os_type: Windows
+    disk_type: Standard_LRS
+    avg_set: avg-vm-infadc-prod
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: WindowsServer
+    image_publisher: MicrosoftWindowsServer
+    image_sku: 2016-Datacenter
+-
+    Name: devsvccfmwebp01
+    resource_group: DAN-DEV
+    vm_size: Standard_DS11_v2 
+    os_type: Windows
+    disk_type: Premium_LRS
+    avg_set: avg-vm-cfmweb-prod
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: WindowsServer
+    image_publisher: MicrosoftWindowsServer
+    image_sku: 2016-Datacenter
+-
+    Name: devsvcmgt01
+    resource_group: DAN-DEV
+    vm_size: Standard_D2_v2
+    os_type: Windows
+    disk_type: Standard_LRS
+    avg_set: 
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: WindowsServer
+    image_publisher: MicrosoftWindowsServer
+    image_sku: 2016-Datacenter
+-
+    Name: devsvccfmsqlp01
+    resource_group: DAN-DEV
+    vm_size: Standard_DS12_v2 
+    os_type: Windows
+    disk_type: StandardSSD_LRS
+    avg_set: 
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: SQL2017-WS2016
+    image_publisher: MicrosoftSQLServer
+    image_sku: Web
+-
+    Name: devsvccfmwebu01
+    resource_group: DAN-DEV
+    vm_size: Standard_DS11_v2 
+    os_type: Windows
+    disk_type: StandardSSD_LRS
+    avg_set: 
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: WindowsServer
+    image_publisher: MicrosoftWindowsServer
+    image_sku: 2016-Datacenter
+-
+    Name: devsvccfmsqlu01
+    resource_group: DAN-DEV
+    vm_size: Standard_DS12_v2
+    os_type: Windows
+    disk_type: Standard_LRS
+    avg_set: 
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: SQL2017-WS2016
+    image_publisher: MicrosoftSQLServer
+    image_sku: SQLDEV
+
+
+# User Defined Routes
+udr_names_list:
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: default
+    address_prefix: 0.0.0.0/0
+    next_hop: 172.29.2.11
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: snet-inf-auea-01
+    address_prefix: 172.29.4.0/23
+    next_hop: 172.29.2.11
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: snet-mgmt-auea-01
+    address_prefix: 172.29.6.0/23
+    next_hop: 172.29.2.11
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: snet-uatapp-auea-01
+    address_prefix: 172.29.8.0/24
+    next_hop: 172.29.2.11
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: snet-uatdb-auea-01
+    address_prefix: 172.29.9.0/24
+    next_hop: 172.29.2.11
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: snet-prodapp-auea-01
+    address_prefix: 172.29.10.0/24
+    next_hop: 172.29.2.11
+-
+    Name: route-default-01
+    resource_group: DAN-DEV
+    routes_name: snet-proddb-auea-01
+    address_prefix: 172.29.11.0/24
+    next_hop: 172.29.2.11
+
+
+# UDR&Subnets Association
+udr_subnets_list:
+-
+    subnet_Name: snet-inf-auea-01
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+    route_table: route-default-01
+-
+    subnet_Name: snet-mgmt-auea-01
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+    route_table: route-default-01
+-
+    subnet_Name: snet-uatapp-auea-01
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+    route_table: route-default-01
+-
+    subnet_Name: snet-uatdb-auea-01
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+    route_table: route-default-01
+-
+    subnet_Name: snet-prodapp-auea-01
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+    route_table: route-default-01
+-
+    subnet_Name: snet-proddb-auea-01
+    vNET_Name: vnet-devops-auea-01
+    resource_group: DAN-DEV
+    route_table: route-default-01
+
+pip_names_list:
+-
+    Name: pip-agw-auea-01
+    resource_group: rg-ea-net-sec
+    sku: Standard
+
+nsg_names_list:
+-
+    Name: nsg-agw-auea-01
+    resource_group: DAN-DEV
+    rule_name: allow_http
+    protocol: Tcp
+    source_address: "*"
+    destination_address: 172.29.3.11/32
+    destination_port: 80
+    access: Allow
+    priority: 100
+    direction: Inbound
+-
+    Name: nsg-agw-auea-01
+    resource_group: DAN-DEV
+    rule_name: allow_agw_ports
+    protocol: "*"
+    source_address: "*"
+    destination_address: "*"
+    destination_port: 65200-65535
+    access: Allow
+    priority: 3999
+    direction: Inbound
+-
+    Name: nsg-agw-auea-01
+    resource_group: DAN-DEV
+    rule_name: deny_all
+    protocol: "*"
+    source_address: "*"
+    destination_address: "*"
+    destination_port: "*"
+    access: Deny
+    priority: 4000
+    direction: Inbound
+
+agw_names_list:
+-
+    Name: agw-auea-01
+    resource_group: DAN-DEV
+    backend_ip_01: 172.29.10.11
+    collection_01: cfmprod
+    header_01: cfm.devops.com.au
+    backend_ip_02: 172.29.8.11
+    collection_02: cfmsit
+    header_02: cfmsit.devops.com.au
+    priv_ip: 172.29.3.11
+    public_ip: pip-agw-auea-01
+    subnet_id: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01/subnets/snet-appgw-auea-01
+
+
+nva_nic_names_list:
+-
+    Name: devsvcnva01
+    resource_group: DAN-DEV
+    location: ext
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-dmzin-auea-01
+    priv_ip: 172.29.1.5
+    nic_acc: yes
+    ip_forwarding: yes
+-
+    Name: devsvcnva01
+    resource_group: DAN-DEV
+    location: int
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-dmzout-auea-01
+    priv_ip: 172.29.2.5
+    nic_acc: yes
+    ip_forwarding: yes
+-
+    Name: devsvcnva01
+    resource_group: DAN-DEV
+    location: ha
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-ha-auea-01
+    priv_ip: 172.29.0.100
+    nic_acc: yes
+    ip_forwarding: no
+-
+    Name: devsvcnva01
+    resource_group: DAN-DEV
+    location: mgmt
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-mgmt-auea-01
+    priv_ip: 172.29.6.12
+    nic_acc: yes
+    ip_forwarding: no
+-
+    Name: devsvcnva02
+    resource_group: DAN-DEV
+    location: ext
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-dmzin-auea-01
+    priv_ip: 172.29.1.6
+    nic_acc: yes
+    ip_forwarding: yes
+-
+    Name: devsvcnva02
+    resource_group: DAN-DEV
+    location: int
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-dmzout-auea-01
+    priv_ip: 172.29.2.6
+    nic_acc: yes
+    ip_forwarding: yes
+-
+    Name: devsvcnva02
+    resource_group: DAN-DEV
+    location: ha
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-ha-auea-01
+    priv_ip: 172.29.0.101
+    nic_acc: yes
+    ip_forwarding: no
+-
+    Name: devsvcnva02
+    resource_group: DAN-DEV
+    location: mgmt
+    vNET_Name: /subscriptions/fa595761-5179-499c-9ab8-9bd11c50abbb/resourceGroups/DAN-DEV/providers/Microsoft.Network/virtualNetworks/vnet-devops-auea-01
+    subnet_Name: snet-mgmt-auea-01
+    priv_ip: 172.29.6.13
+    nic_acc: yes
+    ip_forwarding: no
+
+nva_names_list:
+-
+    Name: devsvcnva01
+    resource_group: DAN-DEV
+    avg_set: avg-nva-infafwl-dr
+    vm_size: Standard_D3_v2
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: fortinet_fortigate-vm_v5
+    image_publisher: fortinet
+    image_sku: fortinet_fg-vm
+-
+    Name: devsvcnva02
+    resource_group: DAN-DEV
+    avg_set: avg-nva-infafwl-dr
+    vm_size: Standard_D3_v2
+    Username: azureadmin
+    Password: z8Z5P874hKnWR#%N
+    image_offer: fortinet_fortigate-vm_v5
+    image_publisher: fortinet
+    image_sku: fortinet_fg-vm
